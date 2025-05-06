@@ -1,0 +1,28 @@
+Your Name
+Your Address
+Your City, State ZIP
+Your Phone Number
+Your Email
+
+[Current Date]
+
+Hiring Manager
+[COMPANY_NAME]
+Company Address
+City, State ZIP
+
+Dear Hiring Manager,
+
+I am writing to express my interest in the [POSITION_TITLE] position at [COMPANY_NAME] as advertised on [job board/website]. With my background in [your field] and experience in [relevant skills], I believe I would be a valuable addition to your team.
+
+Throughout my career, I have developed strong skills in [skill 1], [skill 2], and [skill 3]. In my previous role at [Previous Company], I [brief accomplishment that relates to the job]. I am particularly proud of [another accomplishment], which demonstrates my ability to [relevant skill for the job].
+
+What attracts me to [COMPANY_NAME] is [something specific about the company that you admire]. I am impressed by your company's [mention something specific about their products, services, culture, or mission], and I am excited about the opportunity to contribute to your continued success.
+
+I am confident that my skills in [relevant skills] and my experience with [relevant experience] make me well-suited for this position. I am particularly interested in applying my knowledge of [specific relevant knowledge] to help [COMPANY_NAME] achieve its goals in [relevant area].
+
+Thank you for considering my application. I look forward to the opportunity to discuss how my experience and skills would benefit [COMPANY_NAME] as your new [POSITION_TITLE]. Please feel free to contact me at [your phone number] or [your email address] to arrange an interview.
+
+Sincerely,
+
+Your Name 

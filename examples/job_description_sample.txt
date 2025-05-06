@@ -1,0 +1,55 @@
+Software Developer
+Acme Tech Solutions
+
+About Acme Tech Solutions
+Acme Tech Solutions is a leading technology company specializing in cloud-based software solutions for businesses of all sizes. We are dedicated to creating innovative products that help our clients streamline their operations and achieve their goals.
+
+Job Title: Junior Software Developer
+
+Location: Remote (US-based)
+
+Job Type: Full-time
+
+Salary Range: $70,000 - $90,000
+
+About the Role:
+We are seeking a talented and enthusiastic Junior Software Developer to join our growing development team. As a Junior Software Developer, you will work closely with senior developers and product managers to build and maintain our core products. This is an excellent opportunity for someone looking to grow their skills in a supportive environment.
+
+Responsibilities:
+• Develop and maintain web applications using JavaScript, React, and Node.js
+• Write clean, maintainable, and efficient code
+• Collaborate with cross-functional teams to define, design, and ship new features
+• Identify and fix bugs and performance bottlenecks
+• Participate in code reviews and contribute to technical documentation
+• Stay up-to-date with emerging trends and technologies
+
+Requirements:
+• Bachelor's degree in Computer Science, Software Engineering, or a related field (or equivalent practical experience)
+• 1-2 years of experience in software development
+• Proficiency in JavaScript and familiarity with modern frameworks (React, Vue, or Angular)
+• Basic understanding of server-side technologies (Node.js, Express)
+• Knowledge of database systems (SQL or NoSQL)
+• Experience with version control systems (Git)
+• Strong problem-solving skills and attention to detail
+• Good communication and teamwork skills
+
+Nice to Have:
+• Experience with TypeScript
+• Knowledge of AWS or other cloud platforms
+• Understanding of CI/CD pipelines
+• Experience with testing frameworks (Jest, Mocha)
+• Contributions to open-source projects
+
+Benefits:
+• Competitive salary and equity options
+• Health, dental, and vision insurance
+• 401(k) matching
+• Flexible working hours
+• Remote work options
+• Professional development budget
+• Paid time off and holidays
+
+Acme Tech Solutions is an equal opportunity employer. We celebrate diversity and are committed to creating an inclusive environment for all employees.
+
+How to Apply:
+Please submit your resume and a cover letter explaining why you're excited about this position and why you would be a good fit for our team. 
