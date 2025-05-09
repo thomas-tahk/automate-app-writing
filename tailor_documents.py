@@ -21,14 +21,28 @@ except ImportError:
 
 # We'll use these libraries (will need to be installed via requirements.txt)
 try:
-    import openai
     import docx
     from docx import Document
     from PyPDF2 import PdfReader, PdfWriter
-    import spacy
 except ImportError:
     print("Some required packages are missing. Please run 'pip install -r requirements.txt'")
     exit(1)
+
+# Make OpenAI optional
+try:
+    import openai
+    OPENAI_AVAILABLE = True
+except ImportError:
+    print("OpenAI package not available. AI features will be disabled.")
+    OPENAI_AVAILABLE = False
+
+# Make spaCy optional
+try:
+    import spacy
+    SPACY_AVAILABLE = True
+except ImportError:
+    print("spaCy not available. Using basic text processing.")
+    SPACY_AVAILABLE = False
 
 class DocumentTailorer:
     def __init__(self, config=None):
@@ -36,22 +50,23 @@ class DocumentTailorer:
         self.input_dir = Path("input")
         self.output_dir = Path("output")
         
-        # Initialize NLP model
-        try:
-            self.nlp = spacy.load("en_core_web_sm")
-        except:
-            print("Downloading spaCy language model (first-time setup)...")
-            os.system("python -m spacy download en_core_web_sm")
-            self.nlp = spacy.load("en_core_web_sm")
+        # Initialize NLP model if available
+        self.nlp = None
+        if SPACY_AVAILABLE:
+            try:
+                self.nlp = spacy.load("en_core_web_sm")
+            except:
+                print("spaCy model not found. Using basic text processing.")
             
         # Initialize OpenAI if API key is present
         self.openai_available = False
-        if "OPENAI_API_KEY" in os.environ:
+        if OPENAI_AVAILABLE and "OPENAI_API_KEY" in os.environ:
             openai.api_key = os.environ["OPENAI_API_KEY"]
             self.openai_available = True
         
     def load_resume(self, resume_path):
         """Load a resume file (PDF or DOCX)"""
+        resume_path = str(resume_path)  # Convert Path to string
         if resume_path.endswith('.pdf'):
             # Logic for PDF resumes will go here
             return {"type": "pdf", "path": resume_path, "content": "PDF content extraction"}
@@ -69,6 +84,7 @@ class DocumentTailorer:
     def load_cover_letter(self, cover_letter_path):
         """Load a cover letter template file (PDF or DOCX)"""
         # Similar to load_resume method
+        cover_letter_path = str(cover_letter_path)  # Convert Path to string
         if cover_letter_path.endswith('.docx'):
             doc = Document(cover_letter_path)
             content = "\n".join([para.text for para in doc.paragraphs if para.text])
@@ -84,10 +100,6 @@ class DocumentTailorer:
         """Load a job description file"""
         with open(job_desc_path, 'r', encoding='utf-8') as f:
             content = f.read()
-        
-        # Extract company, job title, etc. if possible
-        # This is a simple extraction approach - could be improved
-        doc = self.nlp(content)
         
         # Basic info extraction
         job_info = {
@@ -133,13 +145,21 @@ class DocumentTailorer:
     
     def _extract_keywords(self, text):
         """Extract important keywords from the job description"""
-        doc = self.nlp(text)
         skills = set()
         
-        # Extract named entities and noun phrases that might be skills
-        for ent in doc.ents:
-            if ent.label_ in ["ORG", "PRODUCT"]:
-                skills.add(ent.text)
+        if self.nlp:
+            # Use spaCy if available
+            doc = self.nlp(text)
+            for ent in doc.ents:
+                if ent.label_ in ["ORG", "PRODUCT"]:
+                    skills.add(ent.text)
+        else:
+            # Basic keyword extraction using regex
+            # Look for common technical terms
+            tech_terms = r'\b(Python|JavaScript|Java|C\+\+|React|Angular|Node\.js|SQL|AWS|Docker|Kubernetes|CI/CD|Machine Learning|Data Science|Project Management)\b'
+            matches = re.finditer(tech_terms, text, re.IGNORECASE)
+            for match in matches:
+                skills.add(match.group(0))
         
         # Add common programming languages, tools, etc.
         tech_keywords = ["Python", "JavaScript", "Java", "C++", "React", "Angular", 
@@ -203,31 +223,33 @@ class DocumentTailorer:
         """Generate a tailored cover letter based on the job description"""
         # Replace placeholder text in the cover letter
         content = cover_letter_data['content']
-        content = content.replace("[COMPANY_NAME]", job_data['company'])
-        content = content.replace("[POSITION_TITLE]", job_data['job_title'])
         
-        # Add a more sophisticated tailoring using relevant keywords
-        keywords_str = ", ".join(job_data['keywords'][:5])  # Use top 5 keywords
+        # Replace common placeholders
+        replacements = {
+            "[COMPANY_NAME]": job_data['company'],
+            "[POSITION_TITLE]": job_data['job_title'],
+            "[Current Date]": datetime.now().strftime("%B %d, %Y"),
+            "[job board/website]": "your job posting",
+            "[your field]": "software development",
+            "[relevant skills]": ", ".join(job_data['keywords'][:3]),
+            "[skill 1]": job_data['keywords'][0] if job_data['keywords'] else "programming",
+            "[skill 2]": job_data['keywords'][1] if len(job_data['keywords']) > 1 else "development",
+            "[skill 3]": job_data['keywords'][2] if len(job_data['keywords']) > 2 else "problem-solving",
+            "[Previous Company]": "my previous company",
+            "[brief accomplishment that relates to the job]": f"successfully delivered projects using {job_data['keywords'][0] if job_data['keywords'] else 'various technologies'}",
+            "[another accomplishment]": "leading multiple successful project deliveries",
+            "[relevant skill for the job]": job_data['keywords'][0] if job_data['keywords'] else "deliver high-quality solutions",
+            "[something specific about the company that you admire]": "your focus on innovation and technical excellence",
+            "[mention something specific about their products, services, culture, or mission]": "commitment to delivering high-quality software solutions",
+            "[relevant experience]": ", ".join(job_data['keywords'][:2]) if job_data['keywords'] else "software development",
+            "[specific relevant knowledge]": job_data['keywords'][0] if job_data['keywords'] else "technical expertise",
+            "[relevant area]": "software development and innovation",
+            "[your phone number]": "YOUR_PHONE_NUMBER",
+            "[your email address]": "YOUR_EMAIL_ADDRESS"
+        }
         
-        if self.openai_available:
-            prompt = f"""
-            Write a personalized cover letter paragraph that mentions these skills: {keywords_str}.
-            The job is for {job_data['job_title']} at {job_data['company']}.
-            The paragraph should be professional and highlight how my experience relates to these skills.
-            Keep it concise (3-5 sentences).
-            """
-            
-            try:
-                response = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo",
-                    messages=[{"role": "user", "content": prompt}]
-                )
-                tailored_paragraph = response.choices[0].message.content
-                
-                # For this MVP, we'll just append it to the end with a note
-                content += f"\n\n[Tailored paragraph suggestion]:\n{tailored_paragraph}"
-            except Exception as e:
-                print(f"OpenAI API call failed: {e}")
+        for placeholder, value in replacements.items():
+            content = content.replace(placeholder, value)
         
         # For a simple MVP, we'll just create a new document with the modified content
         if cover_letter_data['type'] == 'docx':
@@ -237,8 +259,8 @@ class DocumentTailorer:
             # Copy paragraphs from original with replacements
             for para in cover_letter_data['document'].paragraphs:
                 para_text = para.text
-                para_text = para_text.replace("[COMPANY_NAME]", job_data['company'])
-                para_text = para_text.replace("[POSITION_TITLE]", job_data['job_title'])
+                for placeholder, value in replacements.items():
+                    para_text = para_text.replace(placeholder, value)
                 
                 new_para = new_doc.add_paragraph(para_text)
                 # Copy formatting (basic)
@@ -280,9 +302,9 @@ class DocumentTailorer:
         job_output_dir = self.output_dir / job_name
         os.makedirs(job_output_dir, exist_ok=True)
         
-        # Save tailored documents
-        resume_output = job_output_dir / f"Resume_{job_data['company']}_{job_name}.docx"
-        cover_letter_output = job_output_dir / f"CoverLetter_{job_data['company']}_{job_name}.docx"
+        # Save tailored documents - use .txt extension since we're working with text files
+        resume_output = job_output_dir / f"Resume_{job_data['company']}_{job_name}.txt"
+        cover_letter_output = job_output_dir / f"CoverLetter_{job_data['company']}_{job_name}.txt"
         
         self.save_document(tailored_resume, resume_output)
         self.save_document(tailored_cover_letter, cover_letter_output)
